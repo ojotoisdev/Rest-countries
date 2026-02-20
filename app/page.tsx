@@ -1,65 +1,104 @@
+"use client";
+ import Link from "next/link";
+import SearchInput from "@/components/Search/SearchInput";
+import { useState, useLayoutEffect } from "react";
 import Image from "next/image";
+import countriesData from "@/data/countries.json";
+import Select from "react-select";
+import { regionOptions, getCustomStyles } from "@/components/constant";
+
+
+type Country = {
+  name: string;
+  alpha3Code: string;
+  capital: string;
+  region: string;
+  population: number;
+  flags: { png: string; svg: string };
+};
 
 export default function Home() {
+  const [query, setQuery] = useState("");
+   const [regionFilter, setRegionFilter] = useState<string>("");
+   const [isDarkMode, setIsDarkMode] = useState(false);
+
+    useLayoutEffect(() => {
+    const html = document.documentElement;
+
+    const updateMode = () => {
+      setIsDarkMode(html.classList.contains("dark"));
+    };
+    requestAnimationFrame(updateMode);
+    const observer = new MutationObserver(() => {
+      updateMode();
+    });
+
+    observer.observe(html, { attributes: true, attributeFilter: ["class"] });
+
+    return () => observer.disconnect();
+  }, []);
+  
+  const filteredCountries = (countriesData as Country[]).filter(
+    (country) =>
+      country.name.toLowerCase().includes(query.toLowerCase()) &&
+      (regionFilter === "" || country.region === regionFilter)
+  );
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className=" py-4 text-[14px] ">
+     
+      <div className="flex flex-col sm:flex-row items-center w-full justify-between  my-8">
+        <SearchInput value={query} onChange={setQuery} className="w-full sm:w-125  h-14  shadow-[0_2px_4px_rgba(0,0,0,0.1)] " />
+        <div className="w-full sm:w-48">
+          <Select
+           options={regionOptions}
+           placeholder="Select a region"
+           onChange={(option) => setRegionFilter(option?.value || "")}
+           components={{ IndicatorSeparator: () => null }}
+           styles={getCustomStyles(isDarkMode)} 
+          />
+        </div>
+        
+      </div>
+
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-20 w-full">
+       
+
+{filteredCountries.map((country) => (
+  <Link key={country.alpha3Code} href={`/details/${country.alpha3Code}`}>
+    <div className="rounded-lg overflow-hidden shadow-md hover:shadow-xl hover:scale-105 transform transition pb-8 cursor-pointer">
+      <Image
+        src={country.flags.png}
+        alt={`${country.name} flag`}
+        width={100}
+        height={200}
+        className="w-full h-40 object-cover"
+      />
+
+      <div className="p-4">
+        <h2 className="font-extrabold text-[14px] my-4">{country.name}</h2>
+
+        <div className="flex flex-col gap-2">
+          <p>
+            <span className="font-semibold">Population:</span>{" "}
+            {country.population.toLocaleString()}
+          </p>
+
+          <p>
+            <span className="font-semibold">Region:</span> {country.region}
+          </p>
+
+          <p>
+            <span className="font-semibold">Capital:</span> {country.capital}
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+    </div>
+  </Link>
+))}
+
+      </div>
     </div>
   );
 }
