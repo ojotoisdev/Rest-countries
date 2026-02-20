@@ -3,7 +3,7 @@
 import SearchInput from "@/components/Search/SearchInput";
 import { useState, useLayoutEffect } from "react";
 import Image from "next/image";
-import countriesData from "../data/countries.json";
+import countriesData from "../Data/countries.json";
 import Select from "react-select";
 import { regionOptions, getCustomStyles } from "@/components/constant";
 
