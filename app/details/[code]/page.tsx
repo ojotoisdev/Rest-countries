@@ -1,5 +1,5 @@
 import Button from "@/components/Button/Button";
-import countries from "@/data/countries.json";
+import countries from "../../../data/countries.json";
 import Image from "next/image";
 import { FiArrowLeft } from "react-icons/fi";
 
