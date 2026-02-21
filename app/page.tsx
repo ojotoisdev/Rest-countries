@@ -62,7 +62,7 @@ export default function Home() {
 
   return (
     <div className="py-4 text-[14px]">
-      <div className="flex flex-col sm:flex-row items-center w-full justify-between my-8">
+      <div className="flex flex-col gap-4 sm:flex-row items-center w-full justify-between my-8">
         <SearchInput
           value={query}
           onChange={setQuery}
